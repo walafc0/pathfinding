@@ -1,19 +1,24 @@
 #include "nextstep.h"
-
-int step = 0;
+#include "findpath.h"
+#include "errno.h"
 
 int
-nextstep ( int *x, int *y )
+nextstep (int *x, int *y)
 {
-    if ( step >= pathlength_ )
+  static int step = 0;
+
+  if (step >= pathlength_)
     {
-        step = 0;
-        return _E_FAIL;
+      step  = 0;
+
+      errno = _E_FAIL;
+      return -1;
     }
-
-    *x = path_[step].x;
-    *y = path_[step].y;
-    step++;
-
-    return _E_OK;
+  
+  *x = path_[step].x;
+  *y = path_[step].y;
+  step++;
+  
+  errno = _E_OK;
+  return 0;
 }

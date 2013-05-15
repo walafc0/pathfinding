@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 700
+
 #ifdef LOCAL
 #include "local.h"
 #endif
@@ -8,100 +10,96 @@
 
 #ifdef DISPLAY
 #include "display.h"
-int startx = -1;
-int starty = -1;
 #endif
 
-#include "errno.h"
 #include "findpath.h"
 #include "nextstep.h"
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int
-main ( void )
+main (int argc, char **argv)
 {
-    #ifdef DISPLAY
-    int inited = FALSE;
-    pthread_mutex_init ( &lock, NULL );
-    pthread_create ( &thread, NULL, display, &inited );
-    while ( !inited );
-    obstacles ();
-    #endif
+  int err;
 
-    // Premier déplacement :
-    x = getX ();
-    y = getY ();
+  #ifdef DISPLAY
+  pthread_mutex_lock (&mutex);
+  pthread_create (&tid, NULL, display, NULL);
+  pthread_cond_wait (&cond, &mutex);
+  pthread_mutex_unlock (&mutex);
 
-    #ifdef DISPLAY
-    startx = x;
-    starty = y;
-    #endif
+  obstacles ();
+  #endif
 
-    #ifdef DEBUG
-    printf ( "\033[1mStart\tx = %d\ty = %d\033[0m\n", x, y );
-    #endif
+  // Premier déplacement :
+  x = getX ();
+  y = getY ();
 
-    errno = findpath ( x, y, 13, 37 );
-    if ( !errno )
+  #ifdef DEBUG
+  printf ("Start\tx = %d\ty = %d\n", x, y);
+  #endif
+
+  #ifdef DISPLAY
+  startx = x;
+  starty = y;
+  #endif
+
+  err = findpath (x, y, 13, 37);
+  if (err == -1)
     {
-        while ( !( errno = nextstep ( &x, &y ) )  )
-        {
-            #ifdef DEBUG
-            printf ( "Next \tx = %d\ty = %d\n", x, y );
-            #endif
-            // move ( x, y );
-        }
+      #ifdef DEBUG
+      _perror ("findpath");
+      #endif
 
-        #ifdef DISPLAY
-        paths ();
-        #endif
+      exit (EXIT_FAILURE);
     }
-    else
+
+  while (!(err = nextstep (&x, &y)))
     {
-        #ifdef DEBUG
-        _perror ( "findpath" );
-        #endif
+      #ifdef DEBUG
+      printf ("Next \tx = %d\ty = %d\n", x, y);
+      #endif
     }
-    //
 
-    // Second déplacement :
-    x = getX ();
-    y = getY ();
+  #ifdef DISPLAY
+  paths ();
+  #endif
 
-    #ifdef DISPLAY
-    startx = x;
-    starty = y;
-    #endif
+  // Second déplacement :
+  x = getX ();
+  y = getY ();
 
-    #ifdef DEBUG
-    printf ( "\n\033[1mStart\tx = %d\ty = %d\033[0m\n", x, y );
-    #endif
+  #ifdef DEBUG
+  printf ("\nStart\tx = %d\ty = %d\n", x, y);
+  #endif
 
-    errno = findpath ( x, y, 57, 12 );
-    if ( !errno )
+  #ifdef DISPLAY
+  startx = x;
+  starty = y;
+  #endif
+
+  err = findpath (x, y, 57, 12);
+  if (err == -1)
     {
-        while ( !( errno = nextstep ( &x, &y ) )  )
-        {
-            #ifdef DEBUG
-            printf ( "Next \tx = %d\ty = %d\n", x, y );
-            #endif
-            // move ( x, y );
-        }
+      #ifdef DEBUG
+      _perror ("findpath");
+      #endif
 
-        #ifdef DISPLAY
-        paths ();
-        #endif
+      exit (EXIT_FAILURE);
     }
-    else
+
+  while (!(err = nextstep (&x, &y)))
     {
-        #ifdef DEBUG
-        _perror ( "findpath" );
-        #endif
+      #ifdef DEBUG
+      printf ("Next \tx = %d\ty = %d\n", x, y);
+      #endif
     }
-    //
 
-    #ifdef DISPLAY
-    pthread_join ( thread, NULL );
-    #endif
+  #ifdef DISPLAY
+  paths ();
+  pthread_join (tid, NULL);
+  #endif
 
-    return 0;
+  return EXIT_SUCCESS;
 }

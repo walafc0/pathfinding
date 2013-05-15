@@ -1,36 +1,36 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-    #include <pthread.h>
-    #include <SDL/SDL.h>
-    #include "findpath.h"
-    #include "local.h"
+  #include "findpath.h"
+  #include <pthread.h>
+  #include <SDL/SDL.h>
 
-    #define ECRAN ecran
-    #define SCALE 8
-    #define DH    MAPH * SCALE
-    #define DW    MAPW * SCALE * 4
+  #define SCREEN screen
+  #define SCALE  8
+  #define DH     MAPH * SCALE
+  #define DW     MAPW * SCALE * 4
 
-    #define WHITE  ( SDL_MapRGB ( ECRAN -> format, 211, 215, 207 ) )
-    #define BLACK  ( SDL_MapRGB ( ECRAN -> format,  46,  52,  54 ) )
-    #define YELLOW ( SDL_MapRGB ( ECRAN -> format,  52, 101, 164 ) )
-    #define BLUE   ( SDL_MapRGB ( ECRAN -> format,  196, 160,  0 ) )
-    #define RED    ( SDL_MapRGB ( ECRAN -> format,  204,   0,  0 ) )
-    #define GREEN  ( SDL_MapRGB ( ECRAN -> format,   78, 154,  6 ) )
+  #define WHITE  (SDL_MapRGB (SCREEN -> format, 211, 215, 207))
+  #define BLACK  (SDL_MapRGB (SCREEN -> format,  46,  52,  54))
+  #define YELLOW (SDL_MapRGB (SCREEN -> format,  52, 101, 164))
+  #define BLUE   (SDL_MapRGB (SCREEN -> format,  196, 160,  0))
+  #define RED    (SDL_MapRGB (SCREEN -> format,  204,   0,  0))
+  #define GREEN  (SDL_MapRGB (SCREEN -> format,   78, 154,  6))
 
-    extern int startx;
-    extern int starty;
-    extern pthread_t       thread;
-    extern pthread_mutex_t lock;
+  extern int startx;
+  extern int starty;
 
-    void *display ();
-    void  update ();
-    void  obstacles ();
-    void  lists ();
-    void  paths ();
-    void  segments ( Point a, Point b );
-    
-    void draw ( Uint16 x, Uint16 y, Uint32 color );
-    void putPixel ( Uint16 x, Uint16 y, Uint32 color );
+  extern pthread_t tid;
+  extern pthread_mutex_t mutex;
+  extern pthread_cond_t  cond;
+
+  void *display   (void *); 
+  void  putPixel  (Uint16, Uint16, Uint32);
+  void  draw      (Uint16, Uint16, Uint32);
+  void  obstacles (void);
+  void  lists     (void);
+  void  paths     (void);
+  void  segments  (Point, Point);
+  void  update    (void);
 
 #endif
