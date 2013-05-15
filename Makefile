@@ -1,18 +1,35 @@
 # ./Makefile
- 
-CC = gcc
-CFLAGS = -Wall -Werror -pedantic -std=c99 -I ./headers
-OBJ = functions/*.o main/*.o
-NAME = api
-OTHER = `sdl-config --libs --cflags`
- 
-all:
-	make -C functions
-	make -C main
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(OTHER)
-	make -C functions clean
-	make -C main clean
- 
+
+CC      = gcc
+CFLAGS  = -std=c99 -Wall -Werror -pedantic -I$(INC)
+LDFLAGS = `sdl-config --libs --cflags`
+
+INC = ./inc
+SRC = ./src
+OBJ = ./obj
+BIN = ./bin
+
+all: dirs target
+
+DIRS = $(OBJ) $(BIN)
+dirs: | $(DIRS)
+$(DIRS):
+	mkdir -p $(DIRS)
+
+TRGT =	$(BIN)/astar
+OBJS =	$(OBJ)/setObstacle.o	\
+	$(OBJ)/unsetObstacle.o	\
+	$(OBJ)/update.o		\
+	$(OBJ)/findPath.o	\
+	$(OBJ)/nextStep.o	\
+	$(OBJ)/affichage.o	\
+	$(OBJ)/main.o
+target: $(OBJS)
+	$(CC) -o $(TRGT) $^ $(LDFLAGS)
+
+$(OBJ)/%.o: $(SRC)/%.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
 clean:
-	make -C functions clean
-	make -C main clean
+	rm -f $(TRGT)
+	rm -f $(OBJ)/*.o
