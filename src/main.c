@@ -1,34 +1,107 @@
-#include	<stdio.h>
+#ifdef LOCAL
+#include "local.h"
+#endif
 
-#include	"shared.h"
-#include	"main.h"
-#include	"affichage.h"
+#ifdef DEBUG
+#include "debug.h"
+#endif
 
-int main ( int argc, char *argv[] )
+#ifdef DISPLAY
+#include "display.h"
+int startx = -1;
+int starty = -1;
+#endif
+
+#include "errno.h"
+#include "findpath.h"
+#include "nextstep.h"
+
+int
+main ( void )
 {
-	u8 error;
-	u32 start;
-	u32 end;
-	u32 coordinates;
+    #ifdef DISPLAY
+    int inited = FALSE;
+    pthread_mutex_init ( &lock, NULL );
+    pthread_create ( &thread, NULL, display, &inited );
+    while ( !inited );
+    obstacles ();
+    #endif
 
-	/* An example of starting and ending points */
-	start = COORD ( 10, 10 );
-	end = COORD ( 250, 150 );
+    // Premier déplacement :
+    x = getX ();
+    y = getY ();
 
-	error = findPath ( start, end );
-	if ( error )
-	{
-		printf ( "Erreur %d\n", error );
-		return FAILURE;
-	}
+    #ifdef DISPLAY
+    startx = x;
+    starty = y;
+    #endif
 
-	error = nextStep ( &coordinates );
-	while ( !error )
-	{
-		error = nextStep ( &coordinates );
-		printf ( "Prochain point : x = %d ; y = %d\n", (int) X ( coordinates ), (int) Y ( coordinates ) );
-	}
+    #ifdef DEBUG
+    printf ( "\033[1mStart\tx = %d\ty = %d\033[0m\n", x, y );
+    #endif
 
-	affichage() ;
-	return SUCCESS ;
+    errno = findpath ( x, y, 13, 37 );
+    if ( !errno )
+    {
+        while ( !( errno = nextstep ( &x, &y ) )  )
+        {
+            #ifdef DEBUG
+            printf ( "Next \tx = %d\ty = %d\n", x, y );
+            #endif
+            // move ( x, y );
+        }
+
+        #ifdef DISPLAY
+        paths ();
+        #endif
+    }
+    else
+    {
+        #ifdef DEBUG
+        _perror ( "findpath" );
+        #endif
+    }
+    //
+
+    // Second déplacement :
+    x = getX ();
+    y = getY ();
+
+    #ifdef DISPLAY
+    startx = x;
+    starty = y;
+    #endif
+
+    #ifdef DEBUG
+    printf ( "\n\033[1mStart\tx = %d\ty = %d\033[0m\n", x, y );
+    #endif
+
+    errno = findpath ( x, y, 57, 12 );
+    if ( !errno )
+    {
+        while ( !( errno = nextstep ( &x, &y ) )  )
+        {
+            #ifdef DEBUG
+            printf ( "Next \tx = %d\ty = %d\n", x, y );
+            #endif
+            // move ( x, y );
+        }
+
+        #ifdef DISPLAY
+        paths ();
+        #endif
+    }
+    else
+    {
+        #ifdef DEBUG
+        _perror ( "findpath" );
+        #endif
+    }
+    //
+
+    #ifdef DISPLAY
+    pthread_join ( thread, NULL );
+    #endif
+
+    return 0;
 }

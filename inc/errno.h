@@ -1,17 +1,15 @@
 #ifndef _ERRNO_H_
-	#define 	_ERRNO_H_
-
-	#define		SUCCESS		0
-	#define		FAILURE		10
-
-	#define		ERR_1		1
-	#define 	ERR_2		2
-	#define 	ERR_3		3
-	#define 	ERR_4		4
-	#define 	ERR_5		5
-	#define 	ERR_6		6
-	#define 	ERR_7		7
-	#define 	ERR_8		8
-	#define 	ERR_9		9
+#define _ERRNO_H_
+    
+    // TODO: enum ?
+    #define _E_OK   0
+    #define _E_FAIL 1
+    #define _E_SAME 2
+    #define _E_OBS  3
+    #define _E_OUT  4
+    #define _E_OBS_ 5
+    #define _E_OUT_ 6
+    #define _E_LOOP 7
+    #define _E_NOP  8
 
 #endif

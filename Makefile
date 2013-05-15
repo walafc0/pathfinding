@@ -1,8 +1,7 @@
-# ./Makefile
-
 CC      = gcc
-CFLAGS  = -std=c99 -Wall -Werror -pedantic -I$(INC)
-LDFLAGS = `sdl-config --libs --cflags`
+CFLAGS  =  -std=c99 -Wall -Werror -pedantic -I$(INC)
+LDFLAGS = `sdl-config --libs --cflags` -lpthread
+DEFINES = -D LOCAL -D DEBUG -D DISPLAY
 
 INC = ./inc
 SRC = ./src
@@ -16,19 +15,19 @@ dirs: | $(DIRS)
 $(DIRS):
 	mkdir -p $(DIRS)
 
+
 TRGT =	$(BIN)/astar
-OBJS =	$(OBJ)/setObstacle.o	\
-	$(OBJ)/unsetObstacle.o	\
-	$(OBJ)/update.o		\
-	$(OBJ)/findPath.o	\
-	$(OBJ)/nextStep.o	\
-	$(OBJ)/affichage.o	\
+OBJS =	$(OBJ)/findpath.o	\
+	$(OBJ)/nextstep.o	\
+	$(OBJ)/debug.o		\
+	$(OBJ)/local.o		\
+	$(OBJ)/display.o	\
 	$(OBJ)/main.o
 target: $(OBJS)
 	$(CC) -o $(TRGT) $^ $(LDFLAGS)
 
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(DEFINES) -o $@ -c $<
 
 clean:
 	rm -f $(TRGT)
