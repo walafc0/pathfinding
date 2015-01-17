@@ -1,6 +1,10 @@
 #ifndef _FINDPATH_H_
 #define _FINDPATH_H_
 
+#if defined(__unix__)
+#include <sys/param.h>
+#endif
+
   #include "map.h"
 
   #ifndef TRUE
@@ -64,8 +68,11 @@
   void addOpenedNodes (Node *);
   void delOpenedNodes (Node *);
   void addClosedNodes (Node *);
-
+#if defined(BSD)
+  void _heapsort (void);
+#else
   void heapsort (void);
+#endif
   void swap (int, int);
   void sift (int, int);
   int  heuristic (int, int, int, int);

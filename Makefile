@@ -1,4 +1,11 @@
-CC      = gcc
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+CC = gcc
+endif
+ifeq ($(UNAME), FreeBSD)
+CC = gcc48
+endif
+
 CFLAGS  =  -std=c99 -Wall -Werror -pedantic -I$(INC)
 LDFLAGS = `sdl-config --libs --cflags` -lpthread
 DEFINES = -D LOCAL -D DEBUG -D DISPLAY

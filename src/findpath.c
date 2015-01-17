@@ -14,6 +14,10 @@
 #include "display.h"
 #endif
 
+#if defined(__unix__)
+#include <sys/param.h>
+#endif
+
 Map   map = MAP;
 Graph graph;
 List  openedNodes;
@@ -114,7 +118,11 @@ findpath (const int x, const int y, const int x_, const int y_)
 
       // Récupération du noeud ayant le plus petit cout cumulé :
       loop++;
-      heapsort ();
+#if defined(BSD)
+      _heapsort ();
+#else
+      heapsort();
+#endif
       current = openedNodes.node[0];
         
       // Si le noeud courant est le noeud d'arrivée :
@@ -304,8 +312,13 @@ walkable (Point a, Point b)
   return TRUE;
 }
 
+#if defined(BSD)
+void
+_heapsort ()
+#else
 void
 heapsort ()
+#endif
 {
   int root = openedNodes.number / 2 - 1;
   while (root > -1)
